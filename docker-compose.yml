@@ -1,0 +1,39 @@
+services:
+  # --- BACKEND (FastAPI) ---
+  backend:
+    build: ./backend
+    container_name: ai_backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mapeamos tu carpeta local al contenedor para cambios en vivo
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    environment:
+      - PYTHONPATH=/app
+    # Comando con --reload para detectar cambios
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    networks:
+      - ai_network
+
+  # --- FRONTEND (Streamlit) ---
+  frontend:
+    build: ./frontend
+    container_name: ai_frontend
+    ports:
+      - "8501:8501"
+    volumes:
+      # Mapeamos tu carpeta local para cambios en vivo
+      - ./frontend:/app
+    environment:
+      # El frontend le habla al backend por su nombre de servicio ("backend")
+      - BACKEND_URL=http://backend:8000
+    depends_on:
+      - backend
+    networks:
+      - ai_network
+
+networks:
+  ai_network:
+    driver: bridge
