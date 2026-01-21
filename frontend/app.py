@@ -10,11 +10,12 @@ st.set_page_config(
     layout="wide"
 )
 
-DEFAULT_API_URL = os.getenv("BACKEND_URL", "http://127.0.0.1:8000")
+DEFAULT_API_URL = os.getenv("BACKEND_URL", "http://backend:8000")
 
 # --- Configuración Lateral (Sidebar) ---
 with st.sidebar:
     st.header("⚙️ Configuración")
+    # Nota: Si usas Docker interno, la URL por defecto suele ser http://backend:8000
     API_URL = st.text_input("URL del Backend", DEFAULT_API_URL)
     USER_ID = st.text_input("ID de Usuario / Thread", "default_user")
     
@@ -64,7 +65,7 @@ with tab1:
                 st.error(f"Error de conexión: {e}")
 
 # ==========================================
-# TAB 2: Incident Agent (Ejercicio 2)
+# TAB 2: Incident Agent (Ejercicio 2) - CORREGIDO
 # ==========================================
 with tab2:
     st.header("Clasificación y Triaje Automático")
@@ -81,22 +82,44 @@ with tab2:
                 if response.status_code == 200:
                     data = response.json()
                     
-                    # Mostrar resultado visualmente
-                    col1, col2 = st.columns(2)
-                    with col1:
-                        st.metric("Clasificación", data["classification"].upper())
-                    with col2:
-                        st.metric("Acción Sugerida", "Derivar a Soporte" if data["classification"] != "general" else "Responder Auto")
-                        
-                    st.subheader("Respuesta Sugerida:")
-                    st.info(data["final_response"])
-                    
-                    with st.expander("JSON Completo"):
+                    st.success("Análisis Completado")
+
+                    # --- ZONA SEGURA DE RENDERIZADO (FIX) ---
+                    # 1. Primero mostramos el JSON crudo en un expander para asegurar que los datos llegaron
+                    with st.expander("Ver Respuesta Técnica (JSON Completo)", expanded=False):
                         st.json(data)
+
+                    # 2. Intentamos extraer los datos para la vista bonita con manejo de errores
+                    try:
+                        # Extraemos valores con valores por defecto por seguridad
+                        clasificacion = data.get("classification", "Desconocido")
+                        respuesta_texto = data.get("final_response", str(data))
+
+                        # Métricas visuales
+                        col1, col2 = st.columns(2)
+                        with col1:
+                            st.metric("Clasificación", str(clasificacion).upper())
+                        with col2:
+                            accion = "Derivar a Soporte" if str(clasificacion).lower() != "general" else "Responder Auto"
+                            st.metric("Acción Sugerida", accion)
+                        
+                        # Texto de respuesta (Convertido a string para evitar crash de React)
+                        st.subheader("Respuesta Sugerida:")
+                        if isinstance(respuesta_texto, (dict, list)):
+                            st.info(json.dumps(respuesta_texto, indent=2, ensure_ascii=False))
+                        else:
+                            st.info(str(respuesta_texto))
+
+                    except Exception as parse_error:
+                        st.warning(f"Datos recibidos pero hubo un error visualizando los detalles: {parse_error}")
+                    # ----------------------------------------
+
                 else:
-                    st.error(f"Error {response.status_code}: {response.text}")
+                    st.error(f"Error del Servidor {response.status_code}")
+                    st.write(response.text)
+
             except Exception as e:
-                st.error(f"Error de conexión: {e}")
+                st.error(f"Error de conexión o ejecución: {e}")
 
 # ==========================================
 # TAB 3: ReAct Agent (Ejercicio 3)
@@ -127,7 +150,14 @@ with tab3:
             if hist_resp.status_code == 200:
                 history_data = hist_resp.json()
                 for msg in history_data:
-                    role = "user" if msg["type"] == "human" else "assistant"
+                    # Adaptar formato de LangGraph al de Streamlit
+                    if msg.get("type") == "human":
+                        role = "user"
+                    elif msg.get("type") == "ai":
+                        role = "assistant"
+                    else:
+                        continue # Ignorar mensajes de sistema o herramientas por ahora
+                        
                     st.session_state.messages.append({"role": role, "content": msg["content"]})
         except:
             pass # Si falla (ej. 404), empezamos vacío
@@ -163,7 +193,7 @@ with tab3:
                         
                         # Mostrar metadata técnica (Tokens, tiempo)
                         with st.expander("Detalles Técnicos (Traza)"):
-                            st.json(data["metadata"])
+                            st.json(data.get("metadata", {}))
                     else:
                         st.error(f"Error {response.status_code}")
                 except Exception as e:
