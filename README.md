@@ -65,15 +65,19 @@ Sigue estos pasos desde la terminal:
 ## 📂 Estructura del Proyecto
 
 ```text
+ai-agent-orchestrator/
 ├── backend/                # Microservicio API (FastAPI)
 │   ├── app/
+│   │   ├── chains/         # Cadenas de procesamiento (LangChain/LCEL)
 │   │   ├── core/           # Configuración (API Keys, Settings)
 │   │   ├── graphs/         # Lógica de Agentes (LangGraph)
 │   │   ├── routers/        # Endpoints de la API
 │   │   ├── schemas/        # Modelos Pydantic (Input/Output)
 │   │   ├── services/       # Lógica de RAG y Embeddings
-│   │   └── tools/          # Herramientas personalizadas (Calc, Time)
+│   │   ├── tools/          # Herramientas personalizadas (Calc, Time)
+│   │   └── utils/          # Utilidades (Rate Limiter, Helpers)
 │   ├── Dockerfile          # Definición de imagen Backend
+│   ├── pyproject.toml      # Definición del proyecto uv
 │   └── requirements.txt    # Dependencias congeladas
 │
 ├── frontend/               # Microservicio UI (Streamlit)
@@ -83,6 +87,7 @@ Sigue estos pasos desde la terminal:
 │
 ├── docker-compose.yml      # Orquestación y Redes
 └── README.md               # Documentación
+```
 
 ## 🛡️ Notas de Seguridad y Desarrollo
 
