@@ -39,7 +39,7 @@ Sigue estos pasos desde la terminal:
 
 1.  **Clonar el repositorio:**
     ```bash
-    git clone [https://github.com/rodrigoasis87/ai-agent-orchestrator.git](https://github.com/rodrigoasis87/ai-agent-orchestrator.git)
+    git clone https://github.com/rodrigoasis87/ai-agent-orchestrator.git
     cd ai-agent-orchestrator
     ```
 
