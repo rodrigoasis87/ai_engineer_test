@@ -1,4 +1,4 @@
-# 🤖 AI Agent Orchestrator (Microservices Architecture)
+# 🤖 AI Agent Orchestrator
 
 Este proyecto es una prueba técnica de ingeniería de IA que implementa una arquitectura de microservicios dockerizada para orquestar múltiples agentes inteligentes. El sistema demuestra la integración de LLMs modernos con lógica de negocio compleja, persistencia de estado y herramientas externas.
 
