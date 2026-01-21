@@ -46,8 +46,7 @@ Sigue estos pasos desde la terminal:
 2.  **Configurar Variables de Entorno:**
     Crea un archivo `.env` dentro de la carpeta `backend/` con tu clave de API:
     ```bash
-    # Puedes usar tu editor favorito (nano, vim, code)
-    # Ejemplo: backend/.env
+    # backend/.env
     GOOGLE_API_KEY=tu_api_key_aqui_sin_comillas
     ```
 
